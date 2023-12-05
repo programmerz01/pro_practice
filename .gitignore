@@ -1,3 +1,8 @@
 .vscode/
 *.exe
 test.burdo
+try/
+learn/
+*.html
+.vscode
+*.js
