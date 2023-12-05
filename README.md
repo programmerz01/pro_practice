@@ -4,7 +4,9 @@
 ## 原语
 ### let valuable_name
 定义变量，支持string以及double类型    
-let只能出现在脚本语言的初始定义，为全局变量；或出现在函数定义中，只能被该函数使用    
+let只能出现在函数定义中，为全局变量    
+### delete valuable_name 
+与定义变量对应，删除一个变量
 ### add/sub/div/mul $valuable_name number
 对指定变量进行数字运算
 ### GET
@@ -21,4 +23,8 @@ func 函数名
     ...
 endf
 其中...表示若干原语或其他函数调用
+```
+调用格式为：
+```c++
+call 函数名
 ```
