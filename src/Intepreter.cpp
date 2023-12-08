@@ -1,6 +1,8 @@
-#include "../include/Intepreter.h"
 #include <sstream>
 #include <fstream>
+#include "../include/Interpreter.h"
+#include "../include/Func.h"
+
 
 Interpreter::Interpreter()
 {
@@ -78,4 +80,15 @@ bool Interpreter::handle_one_line(std::string s, Expression* &exp)
     
     // 将处理过的字符串传入解析函数
     return Expression::parse(s, exp);
+}
+
+void Interpreter::show_funcs()
+{
+    std::cout << "All functions:" << std::endl;
+    std::map<std::string, Func*> funcs;
+    e->get_funcs(funcs);
+
+    for(auto it = funcs.begin(); it != funcs.end(); it++){
+        std::cout << (it->second)->toString() << std::endl;
+    }
 }

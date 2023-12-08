@@ -63,7 +63,7 @@ bool Expression::parse(std::string s, Expression *&exp)
         return true;
     }
     // 处理equal, 参数为两个变量以及一个表达式
-    else if(type == ExpType::EQUAL){
+    else if(type == ExpType::IF_EQUAL){
         exp = new Expression(type);
         exp->argc = 3;
         iss >> word;
@@ -81,4 +81,17 @@ bool Expression::parse(std::string s, Expression *&exp)
 
         return true;
     }
+}
+
+std::string Expression::toString(){
+    std::ostringstream oss;
+    oss << type_to_string(this->type) << " ";
+    if(this->argc == 1)
+        oss << this->arg1;
+    else if(this->argc == 2)
+        oss << this->arg1 << " " << this->arg2;
+    else if(this->argc == 3)
+        oss << this->arg1 << " " << this->arg2 << " " << this->arg3;
+    return oss.str();
+
 }
