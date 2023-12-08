@@ -6,3 +6,5 @@ learn/
 *.html
 .vscode
 *.js
+build/
+bin/

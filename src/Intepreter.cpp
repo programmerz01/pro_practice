@@ -38,7 +38,7 @@ bool Interpreter::get_script(std::string filename)
         }
 
     }
-    
+    return true;
 }
 
 Func* Interpreter::get_one_func(std::istream &iss, std::string name_line)

@@ -1,3 +1,4 @@
+#pragma once
 #include "Expression.h"
 
 /* 函数类 */
