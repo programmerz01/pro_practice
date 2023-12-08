@@ -1,9 +1,0 @@
-func 123
-    let age 1
-    let name "mike"
-endf
-func main
-    let age 1
-    let name "mike"
-    call 123
-endf

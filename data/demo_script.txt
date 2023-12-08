@@ -1,0 +1,13 @@
+func 123
+    let age 1
+    let name "mc987+987"
+endf
+func main
+    let age 1
+    let name "65488"
+    call 123
+endf
+func test_equal
+    if_equal age 1 (call 123)   
+    call 12a123
+endf

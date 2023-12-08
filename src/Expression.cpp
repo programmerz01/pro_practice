@@ -120,7 +120,7 @@ Expression::ExpType Expression::string_to_type(std::string type_str)
         return ExpType::MUL;
     else if(type_str == "div")
         return ExpType::DIV;
-    else if(type_str == "equal")
+    else if(type_str == "if_equal")
         return ExpType::IF_EQUAL;
     else if(type_str == "get")
         return ExpType::GET;
@@ -146,3 +146,5 @@ std::string Expression::toString(){
     return oss.str();
 
 }
+
+/* 语句执行部分 */

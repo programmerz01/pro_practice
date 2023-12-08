@@ -32,7 +32,7 @@ bool Interpreter::get_script(std::string filename)
         }
         else{
             // 获取函数定义并记录
-            std::string name = line.substr(4, line.size()-4);
+            std::string name = line.substr(5, line.size()-5);
             func = get_one_func(file, name);
             e->add_func(func);
         }
@@ -41,6 +41,7 @@ bool Interpreter::get_script(std::string filename)
     return true;
 }
 
+// 获取一个函数的定义
 Func* Interpreter::get_one_func(std::istream &iss, std::string name_line)
 {
     Func *func = new Func();
@@ -48,20 +49,20 @@ Func* Interpreter::get_one_func(std::istream &iss, std::string name_line)
     // 获取每一行的表达式
     std::string line;
     while(getline(iss, line)){
-        // 函数定义结束
-        if(line == "endf")
+        if(line == "endf")// 函数定义结束
             break;
-
         if(line.empty()) // 空行
             continue;
-        if(handle_one_line(line, exp)){
+
+        if(handle_one_line(line, exp)){ 
             func->add_expression(exp);
         }
     }
-    // 解析函数定义
+    func->set_name(name_line);
     return func;
 }
 
+// 获取一个函数的一行语句定义
 bool Interpreter::handle_one_line(std::string s, Expression* &exp)
 {
     // 处理行首空格或制表符
