@@ -29,10 +29,7 @@ public:
     void execute(Environment &e);
     
     /* expression对应的执行过程 */
-    static void execute_add(Expression p, Environment &e);
-    static void execute_sub(Expression p, Environment &e);
-    static void execute_mul(Expression p, Environment &e);
-    static void execute_div(Expression p, Environment &e);
+    static void execute_operator(Expression p, Environment &e);
     static void execute_get(Expression p, Environment &e);
     static void execute_let(Expression p, Environment &e);
     static void execute_reply(Expression p, Environment &e);

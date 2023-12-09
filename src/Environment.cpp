@@ -4,11 +4,19 @@
 Environment::Environment()
 {
     // 初始化全局变量
-    global_int = std::map<std::string, int>();
     global_real = std::map<std::string, double>();
-    global_string = std::set<std::string>();
+    global_string = std::map<std::string, std::string>();
     // 初始化函数
     global_func = std::map<std::string, Func*>();
+}
+
+void Environment::init()
+{
+    global_real["_func_return"] = 0;// 函数返回值
+    global_real["_exp_return"] = 0;// 语句返回值
+    global_string["_get"] = "";// 用于获取用户输入
+    global_real["__equal_epsilon"] = 1e-6;// 用于判断两个double是否相等
+    
 }
 
 bool Environment::add_func(Func *func)

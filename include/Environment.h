@@ -13,23 +13,33 @@ class Environment
 {
 private:
     /* 全局变量存储区 */
-    std::map<std::string, int> global_int;
     std::map<std::string, double> global_real;
-    std::set<std::string> global_string;
+    std::map<std::string, std::string> global_string;
     /* 堆栈 */
     std::stack<Expression*> stack;
     /* 函数 */
     std::map<std::string, Func*> global_func;
 public:
     Environment();
-    bool add_func(Func *func);
-    bool add_valuable(std::string name, int value);
-    bool add_valuable(std::string name, double value);
-    bool add_valuable(std::string value);
+    /* 对环境中全局变量的所有操作 */
+    // 初始化操作，定义一些常用的内置全局变量
+    void init();
 
-    bool get_valuable_int(std::string name, int &value);
-    bool get_valuable_real(std::string name, double &value);
-    bool get_valuable_string(std::string name, std::string &value);
+    // 添加全局变量
+    bool add_func(Func *func);
+    bool add_valuable(std::string name, double value);
+    bool add_valuable(std::string name, std::string value);
+
+    // 修改全局变量
+    bool set_real(std::string name, double value);
+    bool set_string(std::string name, std::string value);
+
+    // 获取全局变量
+    bool get_real(std::string name, double &value);
+    bool get_string(std::string name, std::string &value);
     bool get_one_func(std::string name, Func* &exp);
     bool get_funcs(std::map<std::string, Func*> &funcs);
+
+    bool push(Expression *exp);
+    bool pop(Expression *&exp);
 };
