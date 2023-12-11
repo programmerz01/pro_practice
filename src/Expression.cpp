@@ -62,7 +62,7 @@ static bool campare_variants(const std::variant<double, std::string> value1,cons
     }
 }
 
-std::string getSubstringInParentheses(const std::string &input)
+static std::string getSubstringInParentheses(const std::string &input)
 {
     std::string result;
     size_t startPos = input.find('(');
@@ -78,9 +78,33 @@ std::string getSubstringInParentheses(const std::string &input)
     return result;
 }
 
+// 几种默认的构造函数
 Expression::Expression(ExpType type)
 {
     this->type = type;
+}
+
+Expression::Expression(ExpType type, std::string arg1)
+{
+    this->type = type;
+    this->arg1 = arg1;
+    this->argc = 1;
+}
+
+Expression::Expression(ExpType type, std::string arg1, std::string arg2)
+{
+    this->type = type;
+    this->arg1 = arg1;
+    this->arg2 = arg2;
+    this->argc = 2;
+}
+
+Expression::Expression(ExpType type, std::string arg1, Expression *arg3)
+{
+    this->type = type;
+    this->arg1 = arg1;
+    this->arg3 = arg3;
+    this->argc = 3;
 }
 
 // 从字符串中解析出表达式

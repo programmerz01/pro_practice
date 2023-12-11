@@ -9,6 +9,31 @@ Interpreter::Interpreter()
     e = new Environment();
 }
 
+Interpreter::~Interpreter()
+{
+    delete e;
+}
+
+bool Interpreter::init(std::string filename)
+{
+    if(get_script(filename))
+    {
+        e->init();
+        return true;
+    }
+    return false;
+}
+
+// 开始执行脚本，从main函数开始
+void Interpreter::execute()
+{
+    Expression *exp;
+    while(e->pop(exp)){
+        exp->execute(*e);
+    }
+    std::cout << "execute finished" << std::endl;
+}
+
 // 从文件中读取脚本
 bool Interpreter::get_script(std::string filename)
 {

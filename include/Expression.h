@@ -23,7 +23,9 @@ private:
 
 public:
     Expression(Expression::ExpType type);
-
+    Expression(Expression::ExpType type, std::string arg1);
+    Expression(Expression::ExpType type, std::string arg1, std::string arg2);
+    Expression(Expression::ExpType type, std::string arg1, Expression* arg3);
 
     /* 原语的执行 */
     void execute(Environment &e);

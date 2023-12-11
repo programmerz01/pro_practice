@@ -15,6 +15,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 # 添加测试
 add_executable(test_read ${SRC_LIST} test/test_read_script.cpp)
+add_executable(test_execute_exp ${SRC_LIST} test/test_exp_execute.cpp)
 
 # 配置测试
 enable_testing()
@@ -22,3 +23,8 @@ add_test(
     NAME test_read
     COMMAND test_read
 ) 
+
+add_test(
+    NAME test_exp
+    COMMAND test_execute_exp
+)

@@ -19,9 +19,9 @@ void Environment::init()
     
     // main函数为入口函数
     Func *func;
-    std::vector<Expression*> exps = func -> get_expressions();
     if (this->get_one_func("main", func))
     {
+        std::vector<Expression*> exps = func -> get_expressions();
         for(auto it = exps.begin(); it != exps.end(); it++){
             this->push(*it);
         }
