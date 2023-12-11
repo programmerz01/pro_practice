@@ -30,15 +30,17 @@ public:
     bool add_valuable(std::string name, double value);
     bool add_valuable(std::string name, std::string value);
 
-    // 修改全局变量
+    // 将全局变量设定为指定值
     bool set_valuable(std::string name, double value);
     bool set_valuable(std::string name, std::string value);
+    bool set_default_precision(int precision);
 
     // 获取全局变量
     bool get_valuable(std::string name, double &value);
     bool get_valuable(std::string name, std::string &value);
     bool get_one_func(std::string name, Func* &exp);
     bool get_funcs(std::map<std::string, Func*> &funcs);
+    int get_default_precision();
 
     bool push(Expression *exp);
     bool pop(Expression *&exp);

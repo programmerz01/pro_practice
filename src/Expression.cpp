@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <variant>
+#include <iomanip>  
 
 // 解析解析参数并获取其值
 static std::variant<double, std::string> get_value(std::string arg, Environment &e) 
@@ -17,15 +18,15 @@ static std::variant<double, std::string> get_value(std::string arg, Environment 
         {
             return value_real;
         }
-        if (e.get_valuable(value_str, arg))
+        if (e.get_valuable(arg.substr(1, arg.size() - 1), value_str))
         {
             return value_str;
         }
-        throw std::invalid_argument("argunment not found" + arg);
+        throw std::invalid_argument("argunment not found : " + arg);
     }
     else // 进行字面量转换
     {
-        if(arg[0] == '\'')
+        if(arg[0] == '\"')
         {
             value_str = arg.substr(1, arg.size() - 2);
             return value_str;
@@ -295,7 +296,7 @@ void Expression::execute_operator(Expression p, Environment &e)
         else if (p.type == ExpType::DIV)
         {
             if (value_real2 == 0)
-                throw std::invalid_argument("Divide by zero");
+                throw std::invalid_argument("Divided by zero");
             result = value_real / value_real2;
         }
         e.set_valuable(arg_name, result);
@@ -368,7 +369,10 @@ void Expression::execute_reply(Expression p, Environment &e)
             std::variant<double, std::string> value;
             value = get_value(sub_arg, e);
             if(std::holds_alternative<double>(value)){
-                oss << std::get<double>(value);
+                if(e.get_default_precision() == -1)
+                    oss << std::get<double>(value);
+                else
+                    oss << std::fixed << std::setprecision(e.get_default_precision()) << std::get<double>(value);
             }
             else{
                 oss << std::get<std::string>(value);
@@ -387,29 +391,18 @@ void Expression::execute_reply(Expression p, Environment &e)
 // 处理let语句，将变量存储在环境中
 void Expression::execute_let(Expression p, Environment &e)
 {
-    std::string str_value;
-    double real_value;
+    std::string arg_name = p.arg1.substr(1, p.arg1.size() - 1);
     std::variant<double, std::string> value;
 
     try{
         value = get_value(p.arg2, e);
-
+        // 设置实数，若存在则修改，否则添加
+        if(std::holds_alternative<double>(value)){
+            e.set_valuable(arg_name, std::get<double>(value));
+        }
         // 设置字符串
-        if(e.get_valuable(str_value, p.arg1)){
-            e.set_valuable(p.arg1, std::get<std::string>(value));
-        }
-        // 设置实数
-        else if(e.get_valuable(p.arg1, real_value)){
-            e.set_valuable(p.arg1, std::get<double>(value));
-        }
-        // 新建变量
         else{
-            if(std::holds_alternative<double>(value)){
-                e.add_valuable(p.arg1, std::get<double>(value));
-            }
-            else{
-                e.add_valuable(p.arg1, std::get<std::string>(value));
-            }
+            e.set_valuable(arg_name, std::get<std::string>(value));
         }
     }
     catch (std::invalid_argument const &e)

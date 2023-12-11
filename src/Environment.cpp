@@ -1,4 +1,5 @@
 #include "../include/Environment.h"
+#include <iomanip>
 
 
 Environment::Environment()
@@ -16,7 +17,11 @@ void Environment::init()
     global_real["_exp_return"] = 0;// 语句返回值
     global_string["_get"] = "";// 用于获取用户输入
     global_real["__equal_epsilon"] = 1e-6;// 用于判断两个double是否相等
+    global_real["_default_value"] = 0;// 默认值
     
+    // double默认精度，-1表示不限制，输出有效位数，>=0表示输出小数点后的位数
+    global_real["default_precision"] = -1;
+
     // main函数为入口函数
     Func *func;
     if (this->get_one_func("main", func))
@@ -60,21 +65,30 @@ bool Environment::add_valuable(std::string name, std::string value)
     return true;
 }
 
-// 成功修改函数返回true，否则返回false
+// 成功修改返回true，新添加变量返回false
 bool Environment::set_valuable(std::string name, double value)
 {
-    if(global_real.find(name) == global_real.end()
-        || global_string.find(name) != global_string.end()){
+    if(global_string.find(name) != global_string.end()){
+        global_string.erase(name);
+        global_real[name] = value;  
+        return true;
+    }
+    if(global_real.find(name) == global_real.end()){
+        global_real[name] = value;
         return false;
     }
     global_real[name] = value;
     return true;
 }
-
 bool Environment::set_valuable(std::string name, std::string value)
 {
-    if(global_string.find(name) == global_string.end()
-        || global_real.find(name) != global_real.end()){
+    if(global_real.find(name) != global_real.end()){
+        global_real.erase(name);
+        global_string[name] = value;  
+        return true;
+    }
+    if(global_string.find(name) == global_string.end()){
+        global_string[name] = value;
         return false;
     }
     global_string[name] = value;
@@ -106,6 +120,18 @@ bool Environment::get_one_func(std::string name, Func *&func)
         return false;
     }
     func = global_func[name];
+    return true;
+}
+
+int Environment::get_default_precision()
+{
+    return global_real["default_precision"];
+}
+
+bool Environment::set_default_precision(int precision)
+{
+    global_real["default_precision"] = precision;
+    std::cout << std::setprecision(precision);
     return true;
 }
 
