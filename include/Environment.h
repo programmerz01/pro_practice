@@ -31,12 +31,12 @@ public:
     bool add_valuable(std::string name, std::string value);
 
     // 修改全局变量
-    bool set_real(std::string name, double value);
-    bool set_string(std::string name, std::string value);
+    bool set_valuable(std::string name, double value);
+    bool set_valuable(std::string name, std::string value);
 
     // 获取全局变量
-    bool get_real(std::string name, double &value);
-    bool get_string(std::string name, std::string &value);
+    bool get_valuable(std::string name, double &value);
+    bool get_valuable(std::string name, std::string &value);
     bool get_one_func(std::string name, Func* &exp);
     bool get_funcs(std::map<std::string, Func*> &funcs);
 

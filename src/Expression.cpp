@@ -7,21 +7,21 @@
 #include <variant>
 
 // 解析解析参数并获取其值
-static std::variant<double, std::string> get_value(std::string arg, Environment &e) noexcept
+static std::variant<double, std::string> get_value(std::string arg, Environment &e) 
 {
     double value_real;
     std::string value_str;
     if (arg[0] == '$')
     {
-        if (e.get_real(arg.substr(1, arg.size() - 1), value_real) )
+        if (e.get_valuable(arg.substr(1, arg.size() - 1), value_real) )
         {
             return value_real;
         }
-        if (e.get_string(value_str, arg))
+        if (e.get_valuable(value_str, arg))
         {
             return value_str;
         }
-        throw std::invalid_argument("argunment not found");
+        throw std::invalid_argument("argunment not found" + arg);
     }
     else // 进行字面量转换
     {
@@ -50,7 +50,7 @@ static bool campare_variants(const std::variant<double, std::string> value1,cons
             double v1 = std::get<double>(value1);
             double v2 = std::get<double>(value2);
             double epsilon;
-            e.get_real("__equal_epsilon", epsilon);
+            e.get_valuable("__equal_epsilon", epsilon);
             return std::abs(v1 - v2) < epsilon; 
         }
         else
@@ -168,6 +168,7 @@ bool Expression::parse(std::string s, Expression *&exp)
 
         return true;
     }
+    return false;
 }
 
 std::string Expression::type_to_string(ExpType type)
@@ -297,18 +298,18 @@ void Expression::execute_operator(Expression p, Environment &e)
                 throw std::invalid_argument("Divide by zero");
             result = value_real / value_real2;
         }
-        e.set_real(arg_name, result);
+        e.set_valuable(arg_name, result);
     }
     catch (std::out_of_range const &e)
     {
         // 如果转换的结果超出了double的范围，处理错误
-        std::cerr << "Error integer overflow: std::out_of_range thrown" << '\n';
+        std::cerr << p.toString() << " Error : std::out_of_range thrown" << '\n';
         return;
     }
     catch (std::invalid_argument const &e)
     {
         // 如果除数为0，处理错误
-        std::cerr << "Error:" << e.what() << '\n';
+        std::cerr << p.toString() << " Error:" << e.what() << '\n';
         return;
     }
 }
@@ -333,13 +334,13 @@ void Expression::execute_if_equal(Expression p, Environment &e)
     catch (std::invalid_argument const &e)
     {
         // 如果除数为0，处理错误
-        std::cerr << "Error:" << e.what() << '\n';
+        std::cerr << p.toString() << " Error:" << e.what() << '\n';
         return;
     }
     catch (std::bad_variant_access const &e)
     {
         // 比较错误
-        std::cerr << "Error:" << e.what() << '\n';
+        std::cerr << p.toString() << " Error:" << e.what() << '\n';
         return;
     }
 }
@@ -349,7 +350,7 @@ void Expression::execute_get(Expression p, Environment &e)
 {
     std::string get;
     std::cin>>get;
-    if(!e.set_string(p.arg1, get)){
+    if(!e.set_valuable(p.arg1, get)){
         std::cerr << "Error: variable " << p.arg1 << " not found" << std::endl;
     }
 }
@@ -377,7 +378,7 @@ void Expression::execute_reply(Expression p, Environment &e)
     catch (std::invalid_argument const &e)
     {
         // 比较错误
-        std::cerr << "Error:" << e.what() << '\n';
+        std::cerr<< p.toString()  << " Error:" << e.what() << '\n';
         return;
     }
     std::cout<<oss.str()<<std::endl;
@@ -394,12 +395,12 @@ void Expression::execute_let(Expression p, Environment &e)
         value = get_value(p.arg2, e);
 
         // 设置字符串
-        if(e.get_string(str_value, p.arg1)){
-            e.set_string(p.arg1, std::get<std::string>(value));
+        if(e.get_valuable(str_value, p.arg1)){
+            e.set_valuable(p.arg1, std::get<std::string>(value));
         }
         // 设置实数
-        else if(e.get_real(p.arg1, real_value)){
-            e.set_real(p.arg1, std::get<double>(value));
+        else if(e.get_valuable(p.arg1, real_value)){
+            e.set_valuable(p.arg1, std::get<double>(value));
         }
         // 新建变量
         else{
@@ -414,18 +415,18 @@ void Expression::execute_let(Expression p, Environment &e)
     catch (std::invalid_argument const &e)
     {
         // 参数错误
-        std::cerr << "Error:" << e.what() << '\n';
+        std::cerr << p.toString() << " Error:" << e.what() << '\n';
         return;
     }
     catch (std::bad_variant_access const &e)
     {
         // 类型错误
-        std::cerr << "Error:" << e.what() << '\n';
+        std::cerr << p.toString()  << " Error:" << e.what() << '\n';
         return;
     }
     catch(std::out_of_range const &e){
         // 超出范围
-        std::cerr << "Error:" << e.what() << '\n';
+        std::cerr << p.toString() << "Error:" << e.what() << '\n';
         return;
     }
 }

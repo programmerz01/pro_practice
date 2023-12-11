@@ -42,7 +42,8 @@ bool Environment::add_func(Func *func)
 
 bool Environment::add_valuable(std::string name, double value)
 {
-    if(global_real.find(name) != global_real.end()){
+    if(global_real.find(name) != global_real.end()
+        || global_string.find(name) != global_string.end()){
         return false;
     }
     global_real[name] = value;
@@ -51,32 +52,36 @@ bool Environment::add_valuable(std::string name, double value)
 
 bool Environment::add_valuable(std::string name, std::string value)
 {
-    if(global_string.find(name) != global_string.end()){
+    if(global_string.find(name) != global_string.end()
+        || global_real.find(name) != global_real.end()){
         return false;
     }
     global_string[name] = value;
     return true;
 }
 
-bool Environment::set_real(std::string name, double value)
+// 成功修改函数返回true，否则返回false
+bool Environment::set_valuable(std::string name, double value)
 {
-    if(global_real.find(name) == global_real.end()){
+    if(global_real.find(name) == global_real.end()
+        || global_string.find(name) != global_string.end()){
         return false;
     }
     global_real[name] = value;
     return true;
 }
 
-bool Environment::set_string(std::string name, std::string value)
+bool Environment::set_valuable(std::string name, std::string value)
 {
-    if(global_string.find(name) == global_string.end()){
+    if(global_string.find(name) == global_string.end()
+        || global_real.find(name) != global_real.end()){
         return false;
     }
     global_string[name] = value;
     return true;
 }
 
-bool Environment::get_real(std::string name, double &value)
+bool Environment::get_valuable(std::string name, double &value)
 {
     if(global_real.find(name) == global_real.end()){
         return false;
@@ -85,7 +90,7 @@ bool Environment::get_real(std::string name, double &value)
     return true;
 }
 
-bool Environment::get_string(std::string name, std::string &value)
+bool Environment::get_valuable(std::string name, std::string &value)
 {
     if(global_string.find(name) == global_string.end()){
         return false;

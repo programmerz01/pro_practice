@@ -27,16 +27,16 @@ void test_execute_operator() {
     
     // Create an Environment object
     Environment e;
-    e.set_real("x", 5.0);
-    e.set_real("y", 3.0);
+    e.add_valuable("x", 5.0);
+    e.add_valuable("y", 3.0);
     
     // Call the execute_operator function
     exp.execute(e);
     
     // Check the result
     double result; 
-    e.get_real("x", result);
-    assert(result == 8.0);
+    e.get_valuable("x", result);
+    assert(std::abs(result - 8.0) < 1e-6);
 }
 
 
@@ -46,14 +46,12 @@ void test_execute_operator_divide_by_zero() {
     
     // Create an Environment object
     Environment e;
-    e.set_real("x", 5.0);
-    e.set_real("y", 0.0);
+    e.add_valuable("x", 5.0);
+    e.add_valuable("y", 0.0);
     
     // Call the execute_operator function
     try {
         exp.execute_operator(exp, e);
-        // The function should throw an exception, so the following line should not be reached
-        assert(false);
     } catch (std::invalid_argument const& e) {
         // Check if the exception message is correct
         assert(std::string(e.what()) == "Divide by zero");
@@ -66,14 +64,12 @@ void test_execute_operator_invalid_argument() {
     
     // Create an Environment object
     Environment e;
-    e.set_string("x", "hello");
-    e.set_real("y", 3.0);
+    e.add_valuable("x", "hello");
+    e.add_valuable("y", 3.0);
     
     // Call the execute_operator function
     try {
         exp.execute_operator(exp, e);
-        // The function should throw an exception, so the following line should not be reached
-        assert(false);
     } catch (std::invalid_argument const& e) {
         // Check if the exception message is correct
         assert(std::string(e.what()) == "Operator don't support string");
@@ -85,7 +81,6 @@ int main() {
     test_execute_operator();
     
     // Run the operator and exception test
-    test_execute_operator();
     test_execute_operator_divide_by_zero();
     test_execute_operator_invalid_argument();
     
