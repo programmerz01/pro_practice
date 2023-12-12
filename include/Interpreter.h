@@ -17,7 +17,7 @@ public:
     /* 执行脚本 */
     void execute();
     /* 展示已有的函数 */
-    void show_funcs();
+    void show_funcs(std::ostream &oss);
 private:
     /* 读取脚本，获取所有的函数定义 */
     bool get_script(std::string filename);

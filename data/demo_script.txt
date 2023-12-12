@@ -7,7 +7,3 @@ func main
     let name "65488"
     call 123
 endf
-func test_equal
-    if_equal age 1 (call 123)   
-    call 12a123
-endf

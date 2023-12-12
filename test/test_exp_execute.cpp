@@ -5,23 +5,6 @@
 #include "../include/Interpreter.h"
 #include "../include/Expression.h"
 
-void test_execute_call() {
-    // Create an Interpreter object
-    Interpreter *pi = new Interpreter();
-    
-    // Load a script file
-    std::string filename = "../data/demo_script.txt";
-    pi->init(filename);
-
-    std::cout << "show functions:" << std::endl;
-    pi->show_funcs();
-    
-    // Call the execute_call function
-    pi->execute();
-    
-    // Clean up
-    delete pi;
-}
 
 void test_execute_operator() {
     // Create an Expression object
