@@ -11,7 +11,7 @@ type: add/sub/mul/div/equal, get, let, reply, equal v1 v2 (expressoin) , call fu
 */
 class Expression { 
 public:
-    enum ExpType {ADD, SUB, MUL, DIV, IF_EQUAL, GET, LET, RESPONSE, CALL};
+    enum ExpType {ADD, SUB, MUL, DIV, IF_EQUAL, GET_STRING, LET, RESPONSE, CALL};
 private:
     /* 表达式类型 */
     ExpType type;
@@ -25,7 +25,7 @@ public:
     Expression(Expression::ExpType type);
     Expression(Expression::ExpType type, std::string arg1);
     Expression(Expression::ExpType type, std::string arg1, std::string arg2);
-    Expression(Expression::ExpType type, std::string arg1, Expression* arg3);
+    Expression(Expression::ExpType type, std::string arg1, std::string arg2, Expression* arg3);
 
     /* 原语的执行 */
     void execute(Environment &e);

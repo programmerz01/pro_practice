@@ -100,10 +100,11 @@ Expression::Expression(ExpType type, std::string arg1, std::string arg2)
     this->argc = 2;
 }
 
-Expression::Expression(ExpType type, std::string arg1, Expression *arg3)
+Expression::Expression(ExpType type, std::string arg1, std::string arg2,  Expression *arg3)
 {
     this->type = type;
     this->arg1 = arg1;
+    this->arg2 = arg2;
     this->arg3 = arg3;
     this->argc = 3;
 }
@@ -131,7 +132,7 @@ bool Expression::parse(std::string s, Expression *&exp)
         return true;
     }
     // 处理get、reply，其参数为若干字符串及变量拼接
-    else if (type == ExpType::GET || type == ExpType::RESPONSE)
+    else if (type == ExpType::GET_STRING || type == ExpType::RESPONSE)
     {
         exp = new Expression(type);
         exp->argc = 1;
@@ -185,9 +186,9 @@ std::string Expression::type_to_string(ExpType type)
     case ExpType::DIV:
         return "div";
     case ExpType::IF_EQUAL:
-        return "equal";
-    case ExpType::GET:
-        return "get";
+        return "if equal";
+    case ExpType::GET_STRING:
+        return "get_string";
     case ExpType::LET:
         return "let";
     case ExpType::RESPONSE:
@@ -211,8 +212,8 @@ Expression::ExpType Expression::string_to_type(std::string type_str)
         return ExpType::DIV;
     else if (type_str == "if_equal")
         return ExpType::IF_EQUAL;
-    else if (type_str == "get")
-        return ExpType::GET;
+    else if (type_str == "get_string")
+        return ExpType::GET_STRING;
     else if (type_str == "let")
         return ExpType::LET;
     else if (type_str == "reply")
@@ -232,7 +233,7 @@ std::string Expression::toString()
     else if (this->argc == 2)
         oss << this->arg1 << " " << this->arg2;
     else if (this->argc == 3)
-        oss << this->arg1 << " " << this->arg2 << " " << this->arg3;
+        oss << this->arg1 << " " << this->arg2 << " -> " << this->arg3->toString();
     return oss.str();
 }
 
@@ -251,7 +252,7 @@ void Expression::execute(Environment &e)
     case ExpType::IF_EQUAL:
         execute_if_equal(*this, e);
         break;
-    case ExpType::GET:
+    case ExpType::GET_STRING:
         execute_get(*this, e);
         break;
     case ExpType::LET:
@@ -334,14 +335,19 @@ void Expression::execute_if_equal(Expression p, Environment &e)
     }
     catch (std::invalid_argument const &e)
     {
-        // 如果除数为0，处理错误
+        // 参数错误
         std::cerr << p.toString() << " Error:" << e.what() << '\n';
         return;
     }
-    catch (std::bad_variant_access const &e)
+    catch (std::bad_alloc const &e)
     {
-        // 比较错误
         std::cerr << p.toString() << " Error:" << e.what() << '\n';
+        return;
+    }
+    catch (std::out_of_range const &e)
+    {
+        // 如果转换的结果超出了double的范围，处理错误
+        std::cerr << p.toString() << " Error : std::out_of_range thrown" << '\n';
         return;
     }
 }
@@ -391,18 +397,17 @@ void Expression::execute_reply(Expression p, Environment &e)
 // 处理let语句，将变量存储在环境中
 void Expression::execute_let(Expression p, Environment &e)
 {
-    std::string arg_name = p.arg1.substr(1, p.arg1.size() - 1);
     std::variant<double, std::string> value;
 
     try{
         value = get_value(p.arg2, e);
         // 设置实数，若存在则修改，否则添加
         if(std::holds_alternative<double>(value)){
-            e.set_valuable(arg_name, std::get<double>(value));
+            e.set_valuable(p.arg1, std::get<double>(value));
         }
         // 设置字符串
         else{
-            e.set_valuable(arg_name, std::get<std::string>(value));
+            e.set_valuable(p.arg1, std::get<std::string>(value));
         }
     }
     catch (std::invalid_argument const &e)
