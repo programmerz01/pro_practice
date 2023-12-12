@@ -432,13 +432,35 @@ void Expression::execute_let(Expression p, Environment &e)
 // 处理call语句，调用函数
 void Expression::execute_call(Expression p, Environment &e)
 {
-    Func *func;
-    if(!e.get_one_func(p.arg1, func)){
-        std::cerr << "Error: function " << p.arg1 << " not found" << std::endl;
+    try{
+        Func *func;
+        if(!e.get_one_func(p.arg1, func)){
+            throw std::invalid_argument("calling function not found " + p.arg1);
+        }
+        std::vector<Expression*> exps = func->get_expressions();
+        for(auto it = exps.begin(); it != exps.end(); it++){
+            e.push(*it);
+        }
+
+    }
+    catch (std::invalid_argument const &e)
+    {
+        // 参数错误
+        std::cerr << p.toString() << " Error:" << e.what() << '\n';
         return;
     }
-    std::vector<Expression*> exps = func->get_expressions();
-    for(auto it = exps.begin(); it != exps.end(); it++){
-        e.push(*it);
-    }
 }
+
+bool Expression::operator==(const Expression& other) const {
+    // 比较两个 Expression 对象的相关属性
+    if(this->argc != other.argc)
+        return false;
+
+    if (this->argc == 1)
+        return this->type == other.type && this->arg1 == other.arg1;
+    else if (this->argc == 2)
+        return this->type == other.type && this->arg1 == other.arg1 && this->arg2 == other.arg2;
+    else if (this->argc == 3)
+        return this->type == other.type && this->arg1 == other.arg1 && this->arg2 == other.arg2 && this->arg3 == other.arg3;
+    return false;
+} 

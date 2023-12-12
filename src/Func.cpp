@@ -2,6 +2,9 @@
 #include <sstream>
 
 Func::Func(){}
+Func::Func(std::string name){
+    this->name = name;
+}
 
 std::string Func::get_name()
 {

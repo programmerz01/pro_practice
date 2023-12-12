@@ -116,7 +116,6 @@ bool Environment::get_valuable(std::string name, std::string &value)
 bool Environment::get_one_func(std::string name, Func *&func)
 {
     if(global_func.find(name) == global_func.end()){
-        std::cerr << "error: function " << name << " not found" << std::endl;
         return false;
     }
     func = global_func[name];

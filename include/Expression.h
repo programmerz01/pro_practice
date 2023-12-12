@@ -47,4 +47,6 @@ public:
 
     std::string toString();
 
+    /* 运算符重载 */
+    bool operator==(const Expression& other) const;
 };

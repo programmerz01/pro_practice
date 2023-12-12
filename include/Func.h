@@ -11,6 +11,8 @@ private:
 
 public:
     Func();
+    Func(std::string name);
+
     void add_expression(Expression *e);
     std::vector<Expression *> get_expressions();
     void set_name(std::string name);
