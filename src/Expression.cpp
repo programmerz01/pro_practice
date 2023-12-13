@@ -438,10 +438,11 @@ void Expression::execute_call(Expression p, Environment &e)
             throw std::invalid_argument("calling function not found " + p.arg1);
         }
         std::vector<Expression*> exps = func->get_expressions();
-        for(auto it = exps.begin(); it != exps.end(); it++){
+        
+        // 函数表达式反序压入栈中
+        for(auto it = exps.rbegin(); it != exps.rend(); it++){
             e.push(*it);
         }
-
     }
     catch (std::invalid_argument const &e)
     {
