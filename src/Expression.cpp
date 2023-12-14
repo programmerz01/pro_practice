@@ -411,23 +411,15 @@ void Expression::execute_let(Expression p, Environment &e)
 // 处理call语句，调用函数
 void Expression::execute_call(Expression p, Environment &e)
 {
-    try{
-        Func *func;
-        if(!e.get_one_func(p.arg1, func)){
-            throw std::invalid_argument("calling function not found " + p.arg1);
-        }
-        std::vector<Expression*> exps = func->get_expressions();
-        
-        // 函数表达式反序压入栈中
-        for(auto it = exps.rbegin(); it != exps.rend(); it++){
-            e.push(*it);
-        }
+    Func *func;
+    if(!e.get_one_func(p.arg1, func)){
+        throw std::invalid_argument("Error: " + p.toString() + " calling function not found " + p.arg1);
     }
-    catch (std::invalid_argument const &e)
-    {
-        // 参数错误
-        std::cerr << p.toString() << " Error:" << e.what() << '\n';
-        return;
+    std::vector<Expression*> exps = func->get_expressions();
+    
+    // 函数表达式反序压入栈中
+    for(auto it = exps.rbegin(); it != exps.rend(); it++){
+        e.push(*it);
     }
 }
 

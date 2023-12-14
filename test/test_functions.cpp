@@ -47,7 +47,7 @@ void test_execute_call()
     }
 }
 
-void test_execute_call_invalid_argument(std::ostringstream &err_output)
+void test_execute_call_invalid_argument()
 {
     // Create an Expression object
     Expression exp(Expression::ExpType::CALL, "func2");
@@ -55,19 +55,18 @@ void test_execute_call_invalid_argument(std::ostringstream &err_output)
     // Create an Environment object
     Environment e;
     e.init();
-    err_output.str("");
-    err_output.clear();
 
-    // Call the execute_call function
-    exp.execute(e);
-
+    try
+    {
+        exp.execute(e);
+    }
+    catch(const std::exception& e)
+    {
     // Check the result
-    std::string res = err_output.str();
-    assert(res == exp.toString() + " Error:calling function not found func2\n");
-
-    // 清空oss的内容
-    err_output.str("");
-    err_output.clear();
+        std::string res = e.what();
+        assert(res == "Error: " + exp.toString() + " calling function not found " + exp.get_arg1());
+    }
+    
 }
 
 void test_execute_func_operator()
@@ -170,7 +169,7 @@ int main()
     test_execute_call();
     test_execute_func_operator();
     test_execute_interaction_func();
-    test_execute_call_invalid_argument(err_output);
+    test_execute_call_invalid_argument();
 
     /* 恢复重定向 */
     std::cout.rdbuf(oldCoutbuf);
