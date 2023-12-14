@@ -27,6 +27,15 @@ public:
     Expression(Expression::ExpType type, std::string arg1, std::string arg2);
     Expression(Expression::ExpType type, std::string arg1, std::string arg2, Expression* arg3);
 
+    /* 获取表达式类型 */
+    ExpType get_type();
+    /* 获取表达式参数个数 */
+    int get_argc();
+    /* 获取表达式参数 */
+    std::string get_arg1();
+    std::string get_arg2();
+    Expression* get_arg3();
+
     /* 原语的执行 */
     void execute(Environment &e);
     

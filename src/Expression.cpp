@@ -8,7 +8,7 @@
 #include <iomanip>  
 
 // 解析解析参数并获取其值
-static std::variant<double, std::string> get_value(std::string arg, Environment &e) 
+static std::variant<double, std::string> get_value(std::string arg, Environment &e, Expression exp) 
 {
     double value_real;
     std::string value_str;
@@ -22,7 +22,7 @@ static std::variant<double, std::string> get_value(std::string arg, Environment 
         {
             return value_str;
         }
-        throw std::invalid_argument("argunment not found : " + arg);
+        throw std::invalid_argument("Error: " + exp.toString()+ " argunment not found : " + arg);
     }
     else // 进行字面量转换
     {
@@ -31,7 +31,15 @@ static std::variant<double, std::string> get_value(std::string arg, Environment 
             value_str = arg.substr(1, arg.size() - 2);
             return value_str;
         }
-        value_real = std::stod(arg);
+        try
+        {
+            value_real = std::stod(arg);
+        }
+        catch(const std::invalid_argument& e)
+        {
+            throw std::invalid_argument("Error: "+ exp.toString() + " stod invalid argument : " + arg);
+        }
+        
         return value_real;
     }
 }
@@ -108,6 +116,33 @@ Expression::Expression(ExpType type, std::string arg1, std::string arg2,  Expres
     this->arg3 = arg3;
     this->argc = 3;
 }
+
+// 获取表达式类型
+Expression::ExpType Expression::get_type()
+{
+    return this->type;
+}
+
+// 获取表达式参数个数
+int Expression::get_argc()
+{
+    return this->argc;
+}
+
+// 获取表达式参数
+std::string Expression::get_arg1()
+{
+    return this->arg1;
+}
+std::string Expression::get_arg2()
+{
+    return this->arg2;
+}
+Expression *Expression::get_arg3()
+{
+    return this->arg3;
+}
+
 
 // 从字符串中解析出表达式
 bool Expression::parse(std::string s, Expression *&exp)
@@ -276,44 +311,30 @@ void Expression::execute_operator(Expression p, Environment &e)
     std::string arg_name = p.arg1.substr(1, p.arg1.size() - 1);
     double value_real, result, value_real2;
     std::variant<double, std::string> value1, value2;
-    try
-    {
-        value1 = get_value(p.arg1, e);
-        value2 = get_value(p.arg2, e);
-        if(!std::holds_alternative<double>(value1) || !std::holds_alternative<double>(value2))
-        {
-            throw std::invalid_argument("Operator don't support string");
-        }
-        value_real = std::get<double>(value1);
-        value_real2 = std::get<double>(value2);
 
-        // 成功找出两个参数值
-        if (p.type == ExpType::ADD)
-            result = value_real + value_real2;
-        else if (p.type == ExpType::SUB)
-            result = value_real - value_real2;
-        else if (p.type == ExpType::MUL)
-            result = value_real * value_real2;
-        else if (p.type == ExpType::DIV)
-        {
-            if (value_real2 == 0)
-                throw std::invalid_argument("Divided by zero");
-            result = value_real / value_real2;
-        }
+    value1 = get_value(p.arg1, e, p);
+    value2 = get_value(p.arg2, e, p);
+    if(!std::holds_alternative<double>(value1) || !std::holds_alternative<double>(value2))
+    {
+        throw std::invalid_argument("Error: "+p.toString() + " operator don't support string");
+    }
+    value_real = std::get<double>(value1);
+    value_real2 = std::get<double>(value2);
+
+    // 成功找出两个参数值
+    if (p.type == ExpType::ADD)
+        result = value_real + value_real2;
+    else if (p.type == ExpType::SUB)
+        result = value_real - value_real2;
+    else if (p.type == ExpType::MUL)
+        result = value_real * value_real2;
+    else if (p.type == ExpType::DIV)
+    {
+        if (value_real2 == 0)
+            throw std::invalid_argument("Error: "+p.toString() + " divided by zero");
+        result = value_real / value_real2;
+    }
         e.set_valuable(arg_name, result);
-    }
-    catch (std::out_of_range const &e)
-    {
-        // 如果转换的结果超出了double的范围，处理错误
-        std::cerr << p.toString() << " Error : std::out_of_range thrown" << '\n';
-        return;
-    }
-    catch (std::invalid_argument const &e)
-    {
-        // 如果除数为0，处理错误
-        std::cerr << p.toString() << " Error:" << e.what() << '\n';
-        return;
-    }
 }
 
 
@@ -325,8 +346,8 @@ void Expression::execute_if_equal(Expression p, Environment &e)
     {
         // 参数比较时，可能为字符串比较，也可能为数字比较
         // 参数可能为变量引用，也可能为字面量比较
-        value1 = get_value(p.arg1, e);
-        value2 = get_value(p.arg2, e);
+        value1 = get_value(p.arg1, e, p);
+        value2 = get_value(p.arg2, e, p);
 
         // 比较两个参数
         if(campare_variants(value1, value2, e)){
@@ -373,7 +394,7 @@ void Expression::execute_reply(Expression p, Environment &e)
     {
         while(std::getline(iss, sub_arg, '+')){
             std::variant<double, std::string> value;
-            value = get_value(sub_arg, e);
+            value = get_value(sub_arg, e, p);
             if(std::holds_alternative<double>(value)){
                 if(e.get_default_precision() == -1)
                     oss << std::get<double>(value);
@@ -400,7 +421,7 @@ void Expression::execute_let(Expression p, Environment &e)
     std::variant<double, std::string> value;
 
     try{
-        value = get_value(p.arg2, e);
+        value = get_value(p.arg2, e, p);
         // 设置实数，若存在则修改，否则添加
         if(std::holds_alternative<double>(value)){
             e.set_valuable(p.arg1, std::get<double>(value));

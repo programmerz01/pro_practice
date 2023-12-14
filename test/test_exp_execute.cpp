@@ -5,8 +5,8 @@
 #include "../include/Interpreter.h"
 #include "../include/Expression.h"
 
-
-void test_execute_operator() {
+void test_execute_operator()
+{
     // Create an Expression object
     Expression exp(Expression::ExpType::ADD, "$x", "$y");
     Expression exp2(Expression::ExpType::ADD, "$x", "$z");
@@ -14,110 +14,132 @@ void test_execute_operator() {
     Expression exp4(Expression::ExpType::MUL, "$y", "$z");
     Expression exp5(Expression::ExpType::ADD, "$x", "123");
 
-    double result, result2, result3, result4, result5; 
+    double result, result2, result3, result4, result5;
 
-    
     // Create an Environment object
     Environment e;
     e.init();
     e.add_valuable("x", 5.0);
     e.add_valuable("y", 3.0);
     e.add_valuable("z", 9.5);
-    
+
     // Call the execute_operator function
-    exp.execute(e);
-    e.get_valuable("x", result);
-    exp2.execute(e);
-    e.get_valuable("x", result2);
-    exp3.execute(e);
-    e.get_valuable("x", result3);
-    exp4.execute(e);
-    e.get_valuable("y", result4);
-    exp5.execute(e);
-    e.get_valuable("x", result5);
+    try
+    {
+        exp.execute(e);
+        e.get_valuable("x", result);
+        exp2.execute(e);
+        e.get_valuable("x", result2);
+        exp3.execute(e);
+        e.get_valuable("x", result3);
+        exp4.execute(e);
+        e.get_valuable("y", result4);
+        exp5.execute(e);
+        e.get_valuable("x", result5);
+    }
+    catch (...)
+    {
+        assert(false);
+    }
 
     assert(std::abs(result - 8.0) < 1e-6);
     assert(std::abs(result2 - 17.5) < 1e-6);
     assert(std::abs(result3 - 8.0) < 1e-6);
     assert(std::abs(result4 - 28.5) < 1e-6);
-    assert(std::abs(result5 -131.0) < 1e-6);
+    assert(std::abs(result5 - 131.0) < 1e-6);
 }
 
-
-void test_execute_operator_divide(std::ostringstream &err_output) {
+void test_execute_operator_divide()
+{
     // Create an Expression object
     Expression exp(Expression::ExpType::DIV, "$x", "$y");
     Expression exp2(Expression::ExpType::DIV, "$x", "$z");
     double result, result2;
-    
+    std::string err_str;
+
     // Create an Environment object
     Environment e;
     e.init();
-    err_output.str("");
-    err_output.clear();
-
 
     e.add_valuable("x", 5.0);
     e.add_valuable("y", 0.0);
     e.add_valuable("z", 2.0);
-    
+
     // Call the execute_operator function
-    exp.execute(e);
-    e.get_valuable("x", result);
-    exp2.execute(e);
-    e.get_valuable("x", result2);
+    try
+    {
+        exp.execute(e);
+        e.get_valuable("x", result);
+    }
+    catch (std::invalid_argument const &e)
+    {
+        err_str = e.what();
+        assert(err_str == "Error: " + exp.toString() + " divided by zero");
+    }
+    try
+    {
+        exp2.execute(e);
+        e.get_valuable("x", result2);
+    }
+    catch (...)
+    {
+        assert(false);
+    }
 
     // Check the result
-    std::string err_str= err_output.str();
-    assert(err_str == "div $x $y Error:Divided by zero\n");
     assert(std::abs(result2 - 2.5) < 1e-6);
-
-    err_output.str("");
-    err_output.clear();
 }
 
-void test_execute_operator_invalid_argument(std::ostringstream &err_output) {
+void test_execute_operator_invalid_argument()
+{
     // Create an Expression object
     Expression exp(Expression::ExpType::ADD, "$x", "$y");
     Expression exp2(Expression::ExpType::ADD, "$x", "aszx");
-    
+    std::string err_str;
+
     // Create an Environment object
     Environment e;
     e.init();
-    err_output.str("");
-    err_output.clear();
 
     e.add_valuable("x", "hello");
     e.add_valuable("y", 3.0);
-    
+
     // Call the execute_operator function
-    exp.execute(e);
-    assert(err_output.str() == "add $x $y Error:Operator don't support string\n");
-    err_output.str("");
-    err_output.clear();
+    try
+    {
+        exp.execute(e);
+    }
+    catch (const std::exception &e)
+    {
+        err_str = e.what();
+        assert(err_str == "Error: " + exp.toString() + " operator don't support string");
+    }
 
-    exp2.execute(e);
-    std::string err_str = err_output.str();
-    assert(err_str == "add $x aszx Error:stod\n");
+    try
+    {
+        exp2.execute(e);
+    }
+    catch (const std::exception &e)
+    {
+        err_str = e.what();
+        assert(err_str == "Error: " + exp2.toString() + " stod invalid argument : " + exp2.get_arg2());
+        // assert(err_str == "add $x aszx Error:stod\n");
+    }
 
-    // 清空oss的内容
-    err_output.str("");
-    err_output.clear();
 }
 
-
-void test_execute_reply_single_value(std::ostringstream &output) {
+void test_execute_reply_single_value(std::ostringstream &output)
+{
     // Create an Expression object
     Expression exp(Expression::ExpType::RESPONSE, "$x");
     Expression exp2(Expression::ExpType::RESPONSE, "\"hello\"");
     std::string res;
-    
+
     // Create an Environment object
     Environment e;
     e.init();
 
     e.add_valuable("x", 5.0);
-
 
     exp.execute(e);
     res = output.str();
@@ -141,13 +163,13 @@ void test_execute_reply_single_value(std::ostringstream &output) {
     output.str("");
     output.clear();
 }
-    
 
-void test_execute_reply_multiple_values(std::ostringstream &output) {
+void test_execute_reply_multiple_values(std::ostringstream &output)
+{
     // Create an Expression object
     Expression exp(Expression::ExpType::RESPONSE, "$x+\" and \"+$y");
     std::string res;
-    
+
     // Create an Environment object
     Environment e;
     e.init();
@@ -157,7 +179,7 @@ void test_execute_reply_multiple_values(std::ostringstream &output) {
     // Add some valuable
     e.add_valuable("x", 5.0);
     e.add_valuable("y", 3.0);
-    
+
     // Call the execute_reply function
     exp.execute(e);
     res = output.str();
@@ -167,7 +189,8 @@ void test_execute_reply_multiple_values(std::ostringstream &output) {
     output.clear();
 }
 
-void test_execute_reply_invalid_argument(std::ostringstream &err_output){
+void test_execute_reply_invalid_argument(std::ostringstream &err_output)
+{
     // Create an Expression object
     Expression exp(Expression::ExpType::RESPONSE, "$x+$123");
 
@@ -179,7 +202,7 @@ void test_execute_reply_invalid_argument(std::ostringstream &err_output){
 
     e.add_valuable("x", "hello");
     e.add_valuable("y", 3.0);
-    
+
     // Call the execute_reply function
     exp.execute_reply(exp, e);
 
@@ -190,7 +213,8 @@ void test_execute_reply_invalid_argument(std::ostringstream &err_output){
     err_output.clear();
 }
 
-void test_execute_let_value() {
+void test_execute_let_value()
+{
     // Create an Expression object
     Expression exp(Expression::ExpType::LET, "x", "\"hello\"");
     Expression exp2(Expression::ExpType::LET, "y", "1.23");
@@ -198,17 +222,17 @@ void test_execute_let_value() {
     Expression exp4(Expression::ExpType::LET, "w", "$x");
     std::string str_res, str_res2;
     double double_res, double_res2;
-    
+
     // Create an Environment object
     Environment e;
     e.init();
-    
+
     // Call the execute_let function
     exp.execute(e);
     exp2.execute(e);
     exp3.execute(e);
     exp4.execute(e);
-    
+
     // Check the result
     e.get_valuable("x", str_res);
     e.get_valuable("w", str_res2);
@@ -221,10 +245,11 @@ void test_execute_let_value() {
     assert(std::abs(double_res2 - 1.23) < 1e-6);
 }
 
-void test_execute_let_invalid_argument(std::ostringstream &err_output) {
+void test_execute_let_invalid_argument(std::ostringstream &err_output)
+{
     // Create an Expression object
     Expression exp(Expression::ExpType::LET, "x", "$y");
-    
+
     // Create an Environment object
     Environment e;
     e.init();
@@ -235,7 +260,7 @@ void test_execute_let_invalid_argument(std::ostringstream &err_output) {
     exp.execute(e);
 
     // Check the result
-    assert(err_output.str() == exp.toString() +" Error:argunment not found : $y\n");
+    assert(err_output.str() == exp.toString() + " Error:argunment not found : $y\n");
 
     // 清空oss的内容
     err_output.str("");
@@ -313,11 +338,12 @@ void test_execute_if_equal_invalid_argument(std::ostringstream &err_output)
     err_output.clear();
 }
 
-void test_execute_get() {
+void test_execute_get()
+{
     // Create an Expression object
     Expression exp(Expression::ExpType::GET_STRING, "x");
     Expression exp2(Expression::ExpType::GET_STRING, "y");
-    
+
     // Create an Environment object
     Environment e;
     e.init();
@@ -338,34 +364,35 @@ void test_execute_get() {
     assert(result2 == "hello");
 }
 
-int main() {
+int main()
+{
     /* 重定向以便进行测试 */
     std::ostringstream output, err_output;
     std::streambuf *oldCoutbuf = std::cout.rdbuf(output.rdbuf());
     std::streambuf *oldCerrbuf = std::cerr.rdbuf(err_output.rdbuf());
 
     /* test for operator */
-    test_execute_operator();// Run the basic test
-    test_execute_operator_divide(err_output);// exception test
-    test_execute_operator_invalid_argument(err_output);
-    
+    test_execute_operator();                  // Run the basic test
+    test_execute_operator_divide(); // exception test
+    test_execute_operator_invalid_argument();
+
     /* test for reply*/
-    test_execute_reply_single_value(output);// basic test
+    test_execute_reply_single_value(output); // basic test
     test_execute_reply_multiple_values(output);
-    test_execute_reply_invalid_argument(err_output);// exception test
+    test_execute_reply_invalid_argument(err_output); // exception test
 
     /* test for let */
-    test_execute_let_value();// basic test
-    test_execute_let_invalid_argument(err_output);// exception test
+    test_execute_let_value();                      // basic test
+    test_execute_let_invalid_argument(err_output); // exception test
 
     /* test for if equal */
-    test_execute_if_equal();// basic test
+    test_execute_if_equal(); // basic test
     test_execute_if_not_equal();
-    test_execute_if_equal_invalid_argument(err_output);// exception test
+    test_execute_if_equal_invalid_argument(err_output); // exception test
 
     /* test for get */
-    test_execute_get();// basic test no exception 
-   
+    test_execute_get(); // basic test no exception
+
     // 恢复cout
     std::cout.rdbuf(oldCoutbuf);
     std::cerr.rdbuf(oldCerrbuf);
