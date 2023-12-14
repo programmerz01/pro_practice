@@ -39,6 +39,10 @@ static std::variant<double, std::string> get_value(std::string arg, Environment 
         {
             throw std::invalid_argument("Error: "+ exp.toString() + " stod invalid argument : " + arg);
         }
+        catch(const std::out_of_range& e)
+        {
+            throw std::invalid_argument("Error: "+ exp.toString() + " stod out of range : " + arg);
+        }
         
         return value_real;
     }
@@ -268,7 +272,7 @@ std::string Expression::toString()
     else if (this->argc == 2)
         oss << this->arg1 << " " << this->arg2;
     else if (this->argc == 3)
-        oss << this->arg1 << " " << this->arg2 << " -> " << this->arg3->toString();
+        oss << this->arg1 << " " << this->arg2 << " -> (" << this->arg3->toString() << ")";
     return oss.str();
 }
 
@@ -342,34 +346,15 @@ void Expression::execute_operator(Expression p, Environment &e)
 void Expression::execute_if_equal(Expression p, Environment &e)
 {
     std::variant<double, std::string> value1, value2;
-    try
-    {
-        // 参数比较时，可能为字符串比较，也可能为数字比较
-        // 参数可能为变量引用，也可能为字面量比较
-        value1 = get_value(p.arg1, e, p);
-        value2 = get_value(p.arg2, e, p);
 
-        // 比较两个参数
-        if(campare_variants(value1, value2, e)){
-            p.arg3->execute(e);
-        }
-    }
-    catch (std::invalid_argument const &e)
-    {
-        // 参数错误
-        std::cerr << p.toString() << " Error:" << e.what() << '\n';
-        return;
-    }
-    catch (std::bad_alloc const &e)
-    {
-        std::cerr << p.toString() << " Error:" << e.what() << '\n';
-        return;
-    }
-    catch (std::out_of_range const &e)
-    {
-        // 如果转换的结果超出了double的范围，处理错误
-        std::cerr << p.toString() << " Error : std::out_of_range thrown" << '\n';
-        return;
+    // 参数比较时，可能为字符串比较，也可能为数字比较
+    // 参数可能为变量引用，也可能为字面量比较
+    value1 = get_value(p.arg1, e, p);
+    value2 = get_value(p.arg2, e, p);
+
+    // 比较两个参数
+    if(campare_variants(value1, value2, e)){
+        p.arg3->execute(e);
     }
 }
 
@@ -389,9 +374,8 @@ void Expression::execute_reply(Expression p, Environment &e)
 {
     std::ostringstream oss;
     std::istringstream iss(p.arg1);
+
     std::string sub_arg;
-    try
-    {
         while(std::getline(iss, sub_arg, '+')){
             std::variant<double, std::string> value;
             value = get_value(sub_arg, e, p);
@@ -405,13 +389,6 @@ void Expression::execute_reply(Expression p, Environment &e)
                 oss << std::get<std::string>(value);
             }
         }
-    }
-    catch (std::invalid_argument const &e)
-    {
-        // 比较错误
-        std::cerr<< p.toString()  << " Error:" << e.what() << '\n';
-        return;
-    }
     std::cout<<oss.str()<<std::endl;
 }
 
@@ -420,33 +397,14 @@ void Expression::execute_let(Expression p, Environment &e)
 {
     std::variant<double, std::string> value;
 
-    try{
-        value = get_value(p.arg2, e, p);
-        // 设置实数，若存在则修改，否则添加
-        if(std::holds_alternative<double>(value)){
-            e.set_valuable(p.arg1, std::get<double>(value));
-        }
-        // 设置字符串
-        else{
-            e.set_valuable(p.arg1, std::get<std::string>(value));
-        }
+    value = get_value(p.arg2, e, p);
+    // 设置实数，若存在则修改，否则添加
+    if(std::holds_alternative<double>(value)){
+        e.set_valuable(p.arg1, std::get<double>(value));
     }
-    catch (std::invalid_argument const &e)
-    {
-        // 参数错误
-        std::cerr << p.toString() << " Error:" << e.what() << '\n';
-        return;
-    }
-    catch (std::bad_variant_access const &e)
-    {
-        // 类型错误
-        std::cerr << p.toString()  << " Error:" << e.what() << '\n';
-        return;
-    }
-    catch(std::out_of_range const &e){
-        // 超出范围
-        std::cerr << p.toString() << "Error:" << e.what() << '\n';
-        return;
+    // 设置字符串
+    else{
+        e.set_valuable(p.arg1, std::get<std::string>(value));
     }
 }
 

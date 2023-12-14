@@ -54,7 +54,9 @@ void test_execute_operator_divide()
     // Create an Expression object
     Expression exp(Expression::ExpType::DIV, "$x", "$y");
     Expression exp2(Expression::ExpType::DIV, "$x", "$z");
+
     double result, result2;
+    bool exception = false;
     std::string err_str;
 
     // Create an Environment object
@@ -73,6 +75,7 @@ void test_execute_operator_divide()
     }
     catch (std::invalid_argument const &e)
     {
+        exception = true;
         err_str = e.what();
         assert(err_str == "Error: " + exp.toString() + " divided by zero");
     }
@@ -88,6 +91,7 @@ void test_execute_operator_divide()
 
     // Check the result
     assert(std::abs(result2 - 2.5) < 1e-6);
+    assert(exception);
 }
 
 void test_execute_operator_invalid_argument()
@@ -95,14 +99,18 @@ void test_execute_operator_invalid_argument()
     // Create an Expression object
     Expression exp(Expression::ExpType::ADD, "$x", "$y");
     Expression exp2(Expression::ExpType::ADD, "$x", "aszx");
+    Expression exp3(Expression::ExpType::ADD, "$x", "1e15");
+    Expression exp4(Expression::ExpType::ADD, "$x", "1e465");
+
     std::string err_str;
+    int exception = 0;
 
     // Create an Environment object
     Environment e;
     e.init();
 
-    e.add_valuable("x", "hello");
-    e.add_valuable("y", 3.0);
+    e.add_valuable("x", 3.0);
+    e.add_valuable("y", "hello");
 
     // Call the execute_operator function
     try
@@ -111,6 +119,7 @@ void test_execute_operator_invalid_argument()
     }
     catch (const std::exception &e)
     {
+        exception++;
         err_str = e.what();
         assert(err_str == "Error: " + exp.toString() + " operator don't support string");
     }
@@ -121,10 +130,33 @@ void test_execute_operator_invalid_argument()
     }
     catch (const std::exception &e)
     {
+        exception++;
         err_str = e.what();
         assert(err_str == "Error: " + exp2.toString() + " stod invalid argument : " + exp2.get_arg2());
         // assert(err_str == "add $x aszx Error:stod\n");
     }
+
+    try
+    {
+        exp3.execute(e);
+    }
+    catch(const std::exception& e)
+    {
+        std::string err_str = e.what();
+        assert(false);
+    }
+
+    try
+    {
+        exp4.execute(e);
+    }
+    catch(const std::exception& e)
+    {
+        exception++;
+        assert(e.what() == "Error: " + exp4.toString() + " stod out of range : " + exp4.get_arg2());
+    }
+
+    assert(exception == 3);
 
 }
 
@@ -189,28 +221,31 @@ void test_execute_reply_multiple_values(std::ostringstream &output)
     output.clear();
 }
 
-void test_execute_reply_invalid_argument(std::ostringstream &err_output)
+void test_execute_reply_invalid_argument()
 {
     // Create an Expression object
     Expression exp(Expression::ExpType::RESPONSE, "$x+$123");
+    bool exception = false;
 
     // Create an Environment object
     Environment e;
     e.init();
-    err_output.str("");
-    err_output.clear();
 
     e.add_valuable("x", "hello");
     e.add_valuable("y", 3.0);
 
-    // Call the execute_reply function
-    exp.execute_reply(exp, e);
-
+    try
+    {
+        exp.execute_reply(exp, e);
+    }
+    catch(const std::exception& e)
+    {
+        std::string err_str = e.what();
+        exception = true;
+        assert(err_str == "Error: " + exp.toString() + " argunment not found : $123");
+    }
     // Check the result
-    assert(err_output.str() == "reply $x+$123 Error:argunment not found : $123\n");
-
-    err_output.str("");
-    err_output.clear();
+    assert(exception);
 }
 
 void test_execute_let_value()
@@ -245,26 +280,27 @@ void test_execute_let_value()
     assert(std::abs(double_res2 - 1.23) < 1e-6);
 }
 
-void test_execute_let_invalid_argument(std::ostringstream &err_output)
+void test_execute_let_invalid_argument()
 {
     // Create an Expression object
     Expression exp(Expression::ExpType::LET, "x", "$y");
+    bool exception = false;
 
     // Create an Environment object
     Environment e;
     e.init();
-    err_output.str("");
-    err_output.clear();
 
-    // Call the execute_let function
-    exp.execute(e);
+    try
+    {
+        exp.execute(e);
+    }
+    catch(const std::exception& e)
+    {
+        exception = true;
+        assert(e.what() == "Error: " + exp.toString() + " argunment not found : " + exp.get_arg2());
+    }
 
-    // Check the result
-    assert(err_output.str() == exp.toString() + " Error:argunment not found : $y\n");
-
-    // 清空oss的内容
-    err_output.str("");
-    err_output.clear();
+    assert(exception);
 }
 
 void test_execute_if_equal()
@@ -311,31 +347,33 @@ void test_execute_if_not_equal()
     assert(!is_exist);
 }
 
-void test_execute_if_equal_invalid_argument(std::ostringstream &err_output)
+void test_execute_if_equal_invalid_argument()
 {
     // Create an Expression object
     Expression arg3(Expression::ExpType::LET, "z", "1");
     Expression exp(Expression::ExpType::IF_EQUAL, "$x", "$y", &arg3);
+    bool exception = false;
 
     // Create an Environment object
     Environment e;
     e.init();
-    err_output.str("");
-    err_output.clear();
 
     // Set the value of $x
     e.add_valuable("x", 5.0);
 
-    // Call the execute_if_equal function
-    exp.execute(e);
+    try
+    {
+        exp.execute(e);
+    }
+    catch(const std::exception& e)
+    {
+        exception = true;
+        std::string err_str = e.what();
+        assert(err_str == "Error: " + exp.toString() + " argunment not found : " + exp.get_arg2());
+    }
 
-    // Check the result
-    std::string err_str = err_output.str();
-    assert(err_str == exp.toString() + " Error:argunment not found : $y\n");
-
-    // 清空oss的内容
-    err_output.str("");
-    err_output.clear();
+    assert(exception);
+    
 }
 
 void test_execute_get()
@@ -379,16 +417,16 @@ int main()
     /* test for reply*/
     test_execute_reply_single_value(output); // basic test
     test_execute_reply_multiple_values(output);
-    test_execute_reply_invalid_argument(err_output); // exception test
+    test_execute_reply_invalid_argument(); // exception test
 
     /* test for let */
     test_execute_let_value();                      // basic test
-    test_execute_let_invalid_argument(err_output); // exception test
+    test_execute_let_invalid_argument(); // exception test
 
     /* test for if equal */
     test_execute_if_equal(); // basic test
     test_execute_if_not_equal();
-    test_execute_if_equal_invalid_argument(err_output); // exception test
+    test_execute_if_equal_invalid_argument(); // exception test
 
     /* test for get */
     test_execute_get(); // basic test no exception
