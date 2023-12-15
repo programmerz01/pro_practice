@@ -16,12 +16,20 @@ Interpreter::~Interpreter()
 
 bool Interpreter::init(std::string filename)
 {
-    if(get_script(filename))
+    try
     {
-        e->init();
-        return true;
+        if(get_script(filename))
+        {
+            e->init();
+            return true;
+        }
+        return false;
     }
-    return false;
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
 }
 
 // 开始执行脚本，从main函数开始

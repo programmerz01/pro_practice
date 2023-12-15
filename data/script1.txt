@@ -1,0 +1,70 @@
+# possiable answer
+func answer1
+    # some block to handle
+    let other_question 0
+    reply "your age is "+$age+"\n"
+endf
+
+func answer2
+    # some block to handle
+    let other_question 0
+    reply "your name is "+$name+"\n"
+endf
+
+func change_deposit
+    reply "what you want to change?\n"
+    get answer
+    let deposit $answer
+    reply "now your deposit is "+$deposit+"\n"
+endf
+
+func answer3
+    # some block to handle
+    reply "Do you want to change your deposit("+$deposit+")?\n"
+    get d_answer
+    if_equal $d_answer "yes" (call change_deposit)
+    let other_question 0
+endf
+
+func answer_other
+    # undefined question
+    reply "I can't understand your question, please say again\n"
+endf
+
+# the answer robot
+func robot
+    reply "what's your problem?:\n1. age\n2. name\n3.deposit\n"
+    get answer
+
+    # handle other question(if can't recognize)
+    let other_question 1
+
+    if_equal $answer 1 (call answer1)
+    if_equal $answer 2 (call answer2)
+    if_equal $answer 3 (call answer3)
+    if_equal $other_question 1 (call answer_other)
+    
+
+    reply "Is there any problem?(yes to continue, q to quit)\n"
+    get answer
+    
+    if_equal $answer "q" (call quit)
+    if_equal $answer "yes" (call robot)
+endf
+
+
+
+# enter function
+func main
+    let age 18
+    let id "2021210954"
+    let name "xiao wang"
+    let deposit 456789
+
+    reply "Is there any problem?(yes to continue, q to quit)\n"
+    get answer
+    if_equal $answer "yes" (call robot)
+endf
+
+func quit
+    reply "bye "+$name+"\n"

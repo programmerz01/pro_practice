@@ -27,7 +27,9 @@ void Environment::init()
     if (this->get_one_func("main", func))
     {
         std::vector<Expression*> exps = func -> get_expressions();
-        for(auto it = exps.begin(); it != exps.end(); it++){
+
+        // 从后往前压栈
+        for(auto it = exps.rbegin(); it != exps.rend(); it++){
             this->push(*it);
         }
     }

@@ -13,6 +13,9 @@ list(REMOVE_ITEM SRC_LIST "src/main.cpp")
 # 可执行文件输出目录
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
+# 项目文件
+add_executable(robot1 ${SRC_LIST} src/main.cpp)
+
 # 添加测试
 add_executable(test_read ${SRC_LIST} test/test_read_script.cpp)
 add_executable(test_execute_exp ${SRC_LIST} test/test_exp_execute.cpp)

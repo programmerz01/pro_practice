@@ -175,7 +175,7 @@ void test_execute_reply_single_value(std::ostringstream &output)
 
     exp.execute(e);
     res = output.str();
-    assert(res == "5\n");
+    assert(res == "5");
     output.str("");
     output.clear();
 
@@ -183,13 +183,20 @@ void test_execute_reply_single_value(std::ostringstream &output)
     e.set_default_precision(2);
     exp.execute(e);
     res = output.str();
-    assert(res == "5.00\n");
+    assert(res == "5.00");
+    output.str("");
+    output.clear();
+
+    e.set_default_precision(4);
+    exp.execute(e);
+    res = output.str();
+    assert(res == "5.0000");
     output.str("");
     output.clear();
 
     exp2.execute(e);
     res = output.str();
-    assert(res == "hello\n");
+    assert(res == "hello");
 
     // 清除缓冲区
     output.str("");
@@ -215,7 +222,7 @@ void test_execute_reply_multiple_values(std::ostringstream &output)
     // Call the execute_reply function
     exp.execute(e);
     res = output.str();
-    assert(res == "5 and 3\n");
+    assert(res == "5 and 3");
 
     output.str("");
     output.clear();
@@ -381,24 +388,26 @@ void test_execute_get()
     // Create an Expression object
     Expression exp(Expression::ExpType::GET, "x");
     Expression exp2(Expression::ExpType::GET, "y");
+    Expression exp3(Expression::ExpType::GET, "z");
 
     // Create an Environment object
     Environment e;
     e.init();
 
     // Redirect cin
-    std::istringstream input("5.0\n\"hello\"\n");
+    std::istringstream input("5.0\nhello\n5.123qwe\n");
     std::cin.rdbuf(input.rdbuf());
 
     // Call the execute_get function
 
     // Check the result
-    double result;
+    double result, result3;
     std::string result2;
     try
     {
         exp.execute(e);
         exp2.execute(e);
+        exp3.execute(e);
     }
     catch(const std::exception& e)
     {
@@ -406,50 +415,13 @@ void test_execute_get()
     }
     assert(e.get_valuable("x", result));
     assert(e.get_valuable("y", result2));
+    assert(e.get_valuable("z", result3));
 
     assert(std::abs(result - 5.0) < 1e-6);
+    assert(std::abs(result3 - 5.123) < 1e-6);
     assert(result2 == "hello");
 }
 
-void test_execute_get_exception()
-{
-    // Create an Expression object
-    Expression exp(Expression::ExpType::GET, "x");
-    Expression exp2(Expression::ExpType::GET, "y");
-    int exception = 0;
-
-    // Create an Environment object
-    Environment e;
-    e.init();
-
-    // Redirect cin
-    std::istringstream input("5asd.\nhello\n");
-    std::cin.rdbuf(input.rdbuf());
-
-    // Check the result
-    std::string result, result2;
-    try
-    {
-        exp.execute(e);
-    }
-    catch(const std::exception& e)
-    {
-        exception++;
-        std::string err_str = e.what();
-        assert(err_str == "Error: " + exp.toString() + " stod invalid argument : 5asd.");
-    }
-
-    try
-    {
-        exp2.execute(e);
-    }
-    catch(const std::exception& e)
-    {
-        exception++;
-        std::string err_str = e.what();
-        assert(err_str == "Error: " + exp2.toString() + " stod invalid argument : hello");
-    }
-}
 
 int main()
 {
@@ -479,7 +451,6 @@ int main()
 
     /* test for get */
     test_execute_get(); // basic test no exception
-    test_execute_get_exception(); // exception test
 
     // 恢复cout
     std::cout.rdbuf(oldCoutbuf);

@@ -7,6 +7,24 @@
 #include <variant>
 #include <iomanip>  
 
+// 解析输入字符串转义字符
+std::string parse_escape_sequences(const std::string& input) {
+    std::string output;
+    for (size_t i = 0; i < input.length(); ++i) {
+        if (input[i] == '\\' && i + 1 < input.length()) {
+            if (input[i + 1] == 'n') {
+                output += '\n';
+                ++i; // Skip the next character
+            } else {
+                output += input[i];
+            }
+        } else {
+            output += input[i];
+        }
+    }
+    return output;
+}
+
 // 解析解析参数并获取其值
 static std::variant<double, std::string> get_value(std::string arg, Environment &e, Expression exp) 
 {
@@ -75,7 +93,7 @@ static bool campare_variants(const std::variant<double, std::string> value1,cons
     }
 }
 
-static std::string getSubstringInParentheses(const std::string &input)
+static std::string get_substring_in_parentheses(const std::string &input)
 {
     std::string result;
     size_t startPos = input.find('(');
@@ -204,7 +222,7 @@ bool Expression::parse(std::string s, Expression *&exp)
         exp->arg3 = new Expression(Expression::ADD);
 
         // 获取括号内的表达式
-        std::string sub = getSubstringInParentheses(s);
+        std::string sub = get_substring_in_parentheses(s);
         Expression *sub_exp;
         if (!Expression::parse(sub, sub_exp))
         {
@@ -367,19 +385,21 @@ void Expression::execute_if_equal(Expression p, Environment &e)
 void Expression::execute_get(Expression p, Environment &e)
 {
     std::string get;
-    std::cin>>get;
-    std::variant<double, std::string> value;
-
-    value = get_value(get, e, p);
+    double d_value;
+    std::cin >> get;
 
     // 判断变量类型
-    if(std::holds_alternative<double>(value)){
-        e.set_valuable(p.arg1, std::get<double>(value));
+    try
+    {
+        d_value = std::stod(get);
+        e.set_valuable(p.arg1, d_value);
     }
-    // 设置字符串
-    else{
-        e.set_valuable(p.arg1, std::get<std::string>(value));
+    catch(const std::exception& error)
+    {
+        // 如果浮点数转换错误，则为字符串
+        e.set_valuable(p.arg1, get);
     }
+    
 }
 
 
@@ -403,7 +423,7 @@ void Expression::execute_reply(Expression p, Environment &e)
                 oss << std::get<std::string>(value);
             }
         }
-    std::cout<<oss.str()<<std::endl;
+    std::cout << parse_escape_sequences(oss.str());
 }
 
 // 处理let语句，将变量存储在环境中
