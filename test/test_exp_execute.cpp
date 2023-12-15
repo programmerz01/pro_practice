@@ -379,27 +379,76 @@ void test_execute_if_equal_invalid_argument()
 void test_execute_get()
 {
     // Create an Expression object
-    Expression exp(Expression::ExpType::GET_STRING, "x");
-    Expression exp2(Expression::ExpType::GET_STRING, "y");
+    Expression exp(Expression::ExpType::GET, "x");
+    Expression exp2(Expression::ExpType::GET, "y");
 
     // Create an Environment object
     Environment e;
     e.init();
 
     // Redirect cin
-    std::istringstream input("5.0\nhello\n");
+    std::istringstream input("5.0\n\"hello\"\n");
     std::cin.rdbuf(input.rdbuf());
 
     // Call the execute_get function
-    exp.execute(e);
-    exp2.execute(e);
+
+    // Check the result
+    double result;
+    std::string result2;
+    try
+    {
+        exp.execute(e);
+        exp2.execute(e);
+    }
+    catch(const std::exception& e)
+    {
+        assert(false);
+    }
+    assert(e.get_valuable("x", result));
+    assert(e.get_valuable("y", result2));
+
+    assert(std::abs(result - 5.0) < 1e-6);
+    assert(result2 == "hello");
+}
+
+void test_execute_get_exception()
+{
+    // Create an Expression object
+    Expression exp(Expression::ExpType::GET, "x");
+    Expression exp2(Expression::ExpType::GET, "y");
+    int exception = 0;
+
+    // Create an Environment object
+    Environment e;
+    e.init();
+
+    // Redirect cin
+    std::istringstream input("5asd.\nhello\n");
+    std::cin.rdbuf(input.rdbuf());
 
     // Check the result
     std::string result, result2;
-    e.get_valuable("x", result);
-    e.get_valuable("y", result2);
-    assert(result == "5.0");
-    assert(result2 == "hello");
+    try
+    {
+        exp.execute(e);
+    }
+    catch(const std::exception& e)
+    {
+        exception++;
+        std::string err_str = e.what();
+        assert(err_str == "Error: " + exp.toString() + " stod invalid argument : 5asd.");
+    }
+
+    try
+    {
+        exp2.execute(e);
+    }
+    catch(const std::exception& e)
+    {
+        exception++;
+        std::string err_str = e.what();
+        assert(err_str == "Error: " + exp2.toString() + " stod invalid argument : hello");
+    }
 }
 
 int main()
@@ -430,6 +479,7 @@ int main()
 
     /* test for get */
     test_execute_get(); // basic test no exception
+    test_execute_get_exception(); // exception test
 
     // 恢复cout
     std::cout.rdbuf(oldCoutbuf);

@@ -1,0 +1,37 @@
+# possiable answer
+func answer1
+    # some block to handle
+    let other_question 0
+    reply "handle age\n"
+endf
+
+
+# the answer robot
+func robot
+    reply "what's your problem?:\n1. age\n2. name\n"
+    get answer
+    if_equal $answer "1" (call answer1)
+    if_equal $answer "2" (call answer2)
+    if_equal $other_question 1 (call answer3)
+
+    reply "Is there any problem?\n"
+    get answer
+    if_equal $answer "yes" (call robot)
+endf
+
+
+
+# enter function
+func main
+    let age 1
+    let id "2021210954"
+    let name "65488"
+    add $age 22
+    sub $age 2
+    reply "tell me your deposit:\n"
+    get deposit
+    reply "your deposit is: "+$deposit+"\n"
+    reply "Is there any problem?\n"
+    get answer
+    if_equal $answer "yes" (call robot)
+endf

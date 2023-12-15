@@ -28,9 +28,19 @@ bool Interpreter::init(std::string filename)
 void Interpreter::execute()
 {
     Expression *exp;
-    while(e->pop(exp)){
-        exp->execute(*e);
+
+    try
+    {
+        while(e->pop(exp)){
+            exp->execute(*e);
+        }
     }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return;
+    }
+
     std::cout << "execute finished" << std::endl;
 }
 
@@ -48,7 +58,7 @@ bool Interpreter::get_script(std::string filename)
     // 不断寻找函数定义，寻找成功则获取该函数 不能出现函数定义以外的语句
     std::string line;
     while(getline(file, line)){
-        if(line.empty()) // 空行
+        if(line.empty() || line[0] == '#') // 空行或注释
             continue;
 
         // 该行不为函数定义,重复读取直至找到下一个函数定义
@@ -96,14 +106,14 @@ bool Interpreter::handle_one_line(std::string s, Expression* &exp)
         s = s.substr(pos); // 截取非空开始的子串
     else  // 字符串均为空格或制表符，解析失败
         return false;
-
-    std::istringstream iss(s);
-    std::string first_word; 
-    iss >> first_word;
     // 注释
     if(s[0] == '#')
         return false;
     
+    std::istringstream iss(s);
+    std::string first_word; 
+    iss >> first_word;
+
     // 将处理过的字符串传入解析函数
     return Expression::parse(s, exp);
 }

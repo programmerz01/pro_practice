@@ -7,27 +7,16 @@
 
 int main()
 {
+    Interpreter *pi = new Interpreter();
+    std::string fp = "../data/script_test_1.txt";
+    if(fp.empty())
+    {
+        std::cerr << "Error: file path is empty" << '\n';
+        return 0;
+    }
 
-    // test_execute_func_operator();
-    // test_execute_interaction_func();
-    {
-    }
-    try{
-
-    }
-    catch (std::out_of_range const &e)
-    {
-        // 如果转换的结果超出了double的范围，处理错误
-        std::cerr << p.toString() << " Error : std::out_of_range thrown" << '\n';
-        return;
-    }
-    catch (std::invalid_argument const &e)
-    {
-        // 如果除数为0，处理错误
-        std::cerr << p.toString() << " Error:" << e.what() << '\n';
-        return;
-    }
-    }
+    pi->init(fp);
+    pi->execute();
 
     return 0;
 }

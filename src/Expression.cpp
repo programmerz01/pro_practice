@@ -152,10 +152,20 @@ Expression *Expression::get_arg3()
 bool Expression::parse(std::string s, Expression *&exp)
 {
     std::istringstream iss(s);
-    std::string word;
+    std::string word, arguments;
 
     iss >> word;
+    arguments = s.substr(word.size() + 1, s.size() - word.size() - 1);
     ExpType type = string_to_type(word);
+
+    // 正则表达式模式,匹配字符串或值
+    std::regex pattern(R"((\".*?\"|\S+)(?:\s+(\".*?\"|\S+))?(?:\s+\((.*?)\))?)");
+    std::smatch matches;
+
+    if (!std::regex_match(arguments, matches, pattern))
+    {
+        throw std::runtime_error("Error: invalid input argument" + s);
+    }
 
     // 处理运算符
     if (type == ExpType::ADD || type == ExpType::SUB ||
@@ -164,19 +174,16 @@ bool Expression::parse(std::string s, Expression *&exp)
     {
         exp = new Expression(type);
         exp->argc = 2;
-        iss >> word;
-        exp->arg1 = word;
-        iss >> word;
-        exp->arg2 = word;
+        exp->arg1 = matches[1].str();
+        exp->arg2 = matches[2].str();
         return true;
     }
     // 处理get、reply，其参数为若干字符串及变量拼接
-    else if (type == ExpType::GET_STRING || type == ExpType::RESPONSE)
+    else if (type == ExpType::GET|| type == ExpType::RESPONSE)
     {
         exp = new Expression(type);
         exp->argc = 1;
-        iss >> word;
-        exp->arg1 = word;
+        exp->arg1 = matches[1].str();
         return true;
     }
     // 处理call
@@ -184,8 +191,7 @@ bool Expression::parse(std::string s, Expression *&exp)
     {
         exp = new Expression(type);
         exp->argc = 1;
-        iss >> word;
-        exp->arg1 = word;
+        exp->arg1 = matches[1].str();
         return true;
     }
     // 处理equal, 参数为两个变量以及一个表达式
@@ -193,10 +199,9 @@ bool Expression::parse(std::string s, Expression *&exp)
     {
         exp = new Expression(type);
         exp->argc = 3;
-        iss >> word;
-        exp->arg1 = word;
-        iss >> word;
-        exp->arg2 = word;
+        exp->arg1 = matches[1].str();
+        exp->arg2 = matches[2].str();
+        exp->arg3 = new Expression(Expression::ADD);
 
         // 获取括号内的表达式
         std::string sub = getSubstringInParentheses(s);
@@ -225,9 +230,9 @@ std::string Expression::type_to_string(ExpType type)
     case ExpType::DIV:
         return "div";
     case ExpType::IF_EQUAL:
-        return "if equal";
-    case ExpType::GET_STRING:
-        return "get_string";
+        return "if_equal";
+    case ExpType::GET:
+        return "get";
     case ExpType::LET:
         return "let";
     case ExpType::RESPONSE:
@@ -251,8 +256,8 @@ Expression::ExpType Expression::string_to_type(std::string type_str)
         return ExpType::DIV;
     else if (type_str == "if_equal")
         return ExpType::IF_EQUAL;
-    else if (type_str == "get_string")
-        return ExpType::GET_STRING;
+    else if (type_str == "get")
+        return ExpType::GET;
     else if (type_str == "let")
         return ExpType::LET;
     else if (type_str == "reply")
@@ -260,7 +265,7 @@ Expression::ExpType Expression::string_to_type(std::string type_str)
     else if (type_str == "call")
         return ExpType::CALL;
     else
-        return ExpType::ADD;
+        throw std::invalid_argument("Error: unknown expression type " + type_str);
 }
 
 std::string Expression::toString()
@@ -272,7 +277,7 @@ std::string Expression::toString()
     else if (this->argc == 2)
         oss << this->arg1 << " " << this->arg2;
     else if (this->argc == 3)
-        oss << this->arg1 << " " << this->arg2 << " -> (" << this->arg3->toString() << ")";
+        oss << this->arg1 << " " << this->arg2 << " (" << this->arg3->toString() << ")";
     return oss.str();
 }
 
@@ -291,7 +296,7 @@ void Expression::execute(Environment &e)
     case ExpType::IF_EQUAL:
         execute_if_equal(*this, e);
         break;
-    case ExpType::GET_STRING:
+    case ExpType::GET:
         execute_get(*this, e);
         break;
     case ExpType::LET:
@@ -358,13 +363,22 @@ void Expression::execute_if_equal(Expression p, Environment &e)
     }
 }
 
-// 对于get语句，获取用户输入，存储在变量中，变量为字符串
+// 对于get语句，获取用户输入，存储在变量中，变量类型规则与命名规则相同
 void Expression::execute_get(Expression p, Environment &e)
 {
     std::string get;
     std::cin>>get;
-    if(!e.set_valuable(p.arg1, get)){
-        std::cerr << "Error: variable " << p.arg1 << " not found" << std::endl;
+    std::variant<double, std::string> value;
+
+    value = get_value(get, e, p);
+
+    // 判断变量类型
+    if(std::holds_alternative<double>(value)){
+        e.set_valuable(p.arg1, std::get<double>(value));
+    }
+    // 设置字符串
+    else{
+        e.set_valuable(p.arg1, std::get<std::string>(value));
     }
 }
 

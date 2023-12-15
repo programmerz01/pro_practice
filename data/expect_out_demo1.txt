@@ -1,0 +1,16 @@
+All functions:
+func 123
+    let age 1
+    let name "mc987+987"
+endf
+
+func main
+    let age 1
+    let name "65488"
+    call 123
+endf
+
+
+"All functions:\nfunc answer1\n    let other_question 0\n    reply \"handle age\\n\"\nendf\n\nfunc main\n    let age 1\n    let id \"2021210954\"\n    let name \"65488\"\n    add $age 22\n    sub $age 2\n    reply \"tell me your deposit:\\n\"\n    get deposit\n    reply \"your deposit is: \"+$deposit+\"\\n\"\n    reply \"Is there any problem?\\n\"\n    get answer\n    if equal $answer \"yes\" (call robot)\nendf\n\nfunc robot\n    reply \"what's your problem?:\\n1. age\\n2. name\\n\"\n    get answer\n    if equal $answer \"1\" (call answer1)\n    if equal $answer \"2\" (call answer2)\n    if equal $other_question 1 (call answer3)\n    reply \"Is there any problem?\\n\"\n    get answer\n    if equal $answer \"yes\" (call robot)\nendf\n\n"
+
+"All functions:\nfunc answer1\n    let other_question 0\n    reply \"handle age\\n\"\nendf\n\nfunc main\n    let age 1\n    let id \"2021210954\"\n    let name \"65488\"\n    add $age 22\n    sub $age 2\n    relpy \"tell me your deposit:\\n\"\n    get deposit\n    reply \"your deposit is: \"+$deposit+\"\\n\"\n    reply \"Is there any problem?\\n\"\n    get answer\n    if_equal $answer \"yes\" (call robot)\nendf\n\nfunc robot\n    reply \"what's your problem?:\\n1. age\\n2. name\\n\"\n    get answer\n    if_equal $answer \"1\" (call answer1)\n    if_equal $answer \"2\" (call answer2)\n    if_equal $other_question 1 (call answer3)\n    reply \"Is there any problem?\\n\"\n    get answer\n    if_equal $answer \"yes\" (call robot)\nendf\n\n"

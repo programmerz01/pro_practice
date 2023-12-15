@@ -30,9 +30,10 @@ std::string Func::toString()
 {
     std::ostringstream oss;
 
-    oss << "func " << this->name << ":" << std::endl;
+    oss << "func " << this->name << std::endl;
     for(auto it = this->exps.begin(); it != this->exps.end(); it++){
-        oss << "\t" << (*it)->toString() << std::endl;
+        oss << "    " << (*it)->toString() << std::endl;
     }
+    oss << "endf" << std::endl;
     return oss.str();
 }

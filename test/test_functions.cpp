@@ -13,7 +13,7 @@ void test_execute_call()
     exps[1] = new Expression(Expression::ExpType::IF_EQUAL, "123", "213", exp);
     exps[2] = new Expression(Expression::ExpType::ADD, "$x", "$z");
     exps[3] = new Expression(Expression::ExpType::LET, "$x", "$z");
-    exps[4] = new Expression(Expression::ExpType::GET_STRING, "z");
+    exps[4] = new Expression(Expression::ExpType::GET, "z");
 
     // Create an Environment object
     Environment e;
@@ -126,8 +126,8 @@ void test_execute_interaction_func()
     exps[4] = new Expression(Expression::ExpType::LET, "z", "456");
     exps[5] = new Expression(Expression::ExpType::LET, "m", "123");
 
-    exps[0] = new Expression(Expression::ExpType::GET_STRING, "x");
-    exps[1] = new Expression(Expression::ExpType::GET_STRING, "y");
+    exps[0] = new Expression(Expression::ExpType::GET, "x");
+    exps[1] = new Expression(Expression::ExpType::GET, "y");
     exps[2] = new Expression(Expression::ExpType::IF_EQUAL, "$x", "$y", exps[4]);
     exps[3] = new Expression(Expression::ExpType::IF_EQUAL, "$x", "789", exps[5]);
 
