@@ -20,6 +20,7 @@ add_executable(robot1 ${SRC_LIST} src/main.cpp)
 add_executable(test_read ${SRC_LIST} test/test_read_script.cpp)
 add_executable(test_execute_exp ${SRC_LIST} test/test_exp_execute.cpp)
 add_executable(test_execute_funcs ${SRC_LIST} test/test_functions.cpp)
+add_executable(test_log ${SRC_LIST} test/test_log.cpp)
 
 # 配置测试
 enable_testing()
@@ -36,4 +37,9 @@ add_test(
 add_test(
     NAME test_func
     COMMAND test_execute_funcs
+)
+
+add_test(
+    NAME test_log
+    COMMAND test_log
 )

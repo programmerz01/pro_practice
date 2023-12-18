@@ -4,6 +4,10 @@
 #include <cassert>
 #include <sstream>
 
+// 改进：
+// 将Interpreter类中的init函数改为构造函数，将execute函数改为析构函数
+// 命令行参数：脚本文件路径、用户数据、多文件读取函数
+// 优化if equal，添加 if not equal
 int main()
 {
     Interpreter *pi = new Interpreter();

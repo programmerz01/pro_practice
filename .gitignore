@@ -3,8 +3,10 @@
 test.burdo
 try/
 learn/
+learn2/
 *.html
 .vscode
 *.js
 build/
 bin/
+log/
