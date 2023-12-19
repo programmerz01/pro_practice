@@ -23,7 +23,6 @@ public:
         }
     
     ~DBconnpool(){
-        std::lock_guard<std::mutex> locker(mtx_);
         while(!connQue_.empty()){
             sql::Connection *conn = connQue_.front();
             connQue_.pop();
@@ -33,10 +32,14 @@ public:
 
     /* 获取一个sql连接，当unique_ptr被释放时，自动调用定义的func将连接重新入队列 */
     std::unique_ptr<sql::Connection, std::function<void(sql::Connection *)>> get_dbconn(){
+        // 等待连接
         std::unique_lock<std::mutex> locker(mtx_);
         cond_.wait(locker, [this]{return !connQue_.empty();});
+
+        // 获取第一个连接
         sql::Connection *conn = connQue_.front();
         connQue_.pop();
+
         return std::unique_ptr<sql::Connection, std::function<void(sql::Connection *)>>(conn, [this](sql::Connection *conn){
             std::lock_guard<std::mutex> locker(mtx_);
             connQue_.push(conn);

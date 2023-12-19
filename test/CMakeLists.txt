@@ -29,8 +29,12 @@ add_executable(test_log ${CMAKE_SOURCE_DIR}/test/test_log.cpp
 target_include_directories(test_log PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(test_log PRIVATE cxx_std_20)
 
-
-# add_executable(test_pool ${SRC_LIST} ${CMAKE_SOURCE_DIR}/test/test_thread_pool.cpp)
+# 线程池及数据库池测试
+add_executable(test_pool ${SERVER_SOURCE} 
+                        ${CMAKE_SOURCE_DIR}/test/test_pool.cpp)
+target_compile_features(test_pool PRIVATE cxx_std_20)
+target_include_directories(test_pool PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(test_pool /usr/lib/x86_64-linux-gnu/libmysqlclient.so /usr/lib/x86_64-linux-gnu/libmysqlcppconn.so)
 
 # 配置测试
 enable_testing()
