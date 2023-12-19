@@ -1,7 +1,7 @@
 #include <sstream>
 #include <fstream>
-#include "../include/Interpreter.h"
-#include "../include/Func.h"
+#include "../../include/Interpreter.h"
+#include "../../include/Func.h"
 
 
 Interpreter::Interpreter()

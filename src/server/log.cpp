@@ -3,7 +3,7 @@
  * @Date         : 2020-06-16
  * @copyleft Apache 2.0
  */ 
-#include "../include/log.h"
+#include "../../include/log.h"
 
 using namespace std;
 

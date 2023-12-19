@@ -2,44 +2,21 @@ cmake_minimum_required(VERSION 3.5)
 
 project(program_prac )
 
+
 # 头文件目录
 include_directories(include)
 
-# 设置源文件
-# set(SRC_LIST src/ReadScript.cpp)
-aux_source_directory(src SRC_LIST)
-list(REMOVE_ITEM SRC_LIST "src/main.cpp")
+# 设置源文件，并设置子目录可见
+file(GLOB INTERPRETER_SOURCE "${CMAKE_SOURCE_DIR}/src/interpreter/*.cpp")
+file(GLOB SERVER_SOURCE "${CMAKE_SOURCE_DIR}/src/server/*.cpp")
 
 # 可执行文件输出目录
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 # 项目文件
-add_executable(robot1 ${SRC_LIST} src/main.cpp)
+add_executable(robot1 ${INTERPRETER_SOURCE} 
+                        ${SERVER_SOURCE}          
+                        src/main.cpp)
 
 # 添加测试
-add_executable(test_read ${SRC_LIST} test/test_read_script.cpp)
-add_executable(test_execute_exp ${SRC_LIST} test/test_exp_execute.cpp)
-add_executable(test_execute_funcs ${SRC_LIST} test/test_functions.cpp)
-add_executable(test_log ${SRC_LIST} test/test_log.cpp)
-
-# 配置测试
-enable_testing()
-add_test(
-    NAME test_read
-    COMMAND test_read
-) 
-
-add_test(
-    NAME test_exp
-    COMMAND test_execute_exp
-)
-
-add_test(
-    NAME test_func
-    COMMAND test_execute_funcs
-)
-
-add_test(
-    NAME test_log
-    COMMAND test_log
-)
+add_subdirectory(test)

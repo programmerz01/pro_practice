@@ -1,4 +1,4 @@
-#include "../include/Func.h"
+#include "../../include/Func.h"
 #include <sstream>
 
 Func::Func(){}
