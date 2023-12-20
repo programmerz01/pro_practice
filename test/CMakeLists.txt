@@ -36,6 +36,13 @@ target_compile_features(test_pool PRIVATE cxx_std_20)
 target_include_directories(test_pool PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(test_pool /usr/lib/x86_64-linux-gnu/libmysqlclient.so /usr/lib/x86_64-linux-gnu/libmysqlcppconn.so)
 
+# 测试http连接
+# request
+add_executable(test_request ${SERVER_SOURCE} 
+                            ${CMAKE_SOURCE_DIR}/test/test_http_request.cpp)
+target_compile_features(test_request PRIVATE cxx_std_20)
+target_include_directories(test_request PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
 # 配置测试
 enable_testing()
 add_test(

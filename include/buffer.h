@@ -1,7 +1,8 @@
 /*
- * @Author       : mark
- * @Date         : 2020-06-26
- * @copyleft Apache 2.0
+ * @Author       : programmerz01
+ * @Date         : 2023-12-19
+ * @tpye         : bupt_project
+ * @decs         : ring buffer
  */ 
 
 #ifndef BUFFER_H
