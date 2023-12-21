@@ -37,9 +37,9 @@ void test_request()
     assert(req.get_header("Accept-Encoding") == "gzip, deflate, br");
     assert(req.get_header("Content-Type") == "application/json");
     assert(req.get_header("Content-Length") == "31");
-    assert(req.get_header("Origin") == "http://127.0.0.1:10238\r\n");
+    assert(req.get_header("Origin") == "http://127.0.0.1:10238");
     assert(req.get_header("Connection") == "keep-alive");
-    assert(req.get_header("Referer") == "http://127.0.0.1:10238/login.html\r\n");
+    assert(req.get_header("Referer") == "http://127.0.0.1:10238/login.html");
     assert(req.get_header("Cookie") == "x-hng=lang=zh-CN");
     assert(req.get_header("Sec-Fetch-Dest") == "empty");
     assert(req.get_header("Sec-Fetch-Mode") == "cors");

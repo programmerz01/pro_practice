@@ -79,7 +79,8 @@ bool HttpRequest::parse(Buffer& buff) {
                 LOG_ERROR("Parse request failed: \n%s\n Error line: %s\n", std::string(buffer_view).c_str(), std::string(one_line).c_str());
                 return false;
             }
-            break;    
+            state_ = Parse_state::Headers;
+            break;
 
         // 头
         case Parse_state::Headers: 
@@ -120,7 +121,7 @@ bool HttpRequest::parse(Buffer& buff) {
         default:
             break;
         }
-        pos == line_end + CRLF.size();
+        pos = line_end + CRLF.size();
     }
     return true;
 }
